@@ -15,7 +15,7 @@ import statistics as stat
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from sklearn.linear_model import LinearRegression
 import statsmodels.api as sm
-from statsmodels.tsa.arima_model import ARIMA
+from statsmodels.tsa.arima.model import ARIMA
 
 #Uncomment the parts you'd like to plot
 
@@ -32,14 +32,10 @@ df = pd.read_excel("WILL5000PRFC.xls")
 
 
 # Exercise 2: Calculating ACF and PACF with differenced data
-
-diff = []
-for i in range(1, len(df["Price"])):
-    diff.append(df["Price"][i] - df["Price"][i-1])
     
-# plt.plot(df["Date"][1:], diff)
-# plot_acf(diff, lags = 50)
-# plot_pacf(diff, lags = 50)
+# plt.plot(df["Date"], df["Price"].diff())
+# plot_acf(df["Price"].diff()[1:], lags = 50)
+# plot_pacf(df["Price"].diff()[1:], lags = 50)
     
 
 
@@ -47,13 +43,13 @@ for i in range(1, len(df["Price"])):
 
 # Exercise 3: AIC and BIC on differential data
 
-model = ARIMA(diff, order = (1,1,1))  #AR = 1, diff = 1, MA=1
+model = ARIMA(df["Price"].diff()[1:], order = (1,1,1))  #AR = 1, diff = 1, MA=1
 results = model.fit()
 print("AIC: ", round(results.aic, 3), "\nBIC: ", round(results.bic, 3))
-results.plot_predict(dynamic = False)
+#results.plot_predict(dynamic = False)
 
 # 5. Forecast based on model
-y_pred = results.forecast(3)[0]
+y_pred = results.forecast(3)
 print("Forecast: ", y_pred)
 
     
