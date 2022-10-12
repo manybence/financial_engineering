@@ -87,34 +87,3 @@ plt.show()
 
 
 
-        
-
-
-
-
-        
-        
-        
-        
-        
-
-#TODO: Automatic data import
-
-# plt.plot(x, close, label="close")
-# plt.plot(x, close_adj, label="adjusted close")
-# plt.xlabel('Date')
-# plt.ylabel('Price [$]')
-# plt.title('XON stock price')
-# plt.legend()
-# plt.show()
-
-# stock = yf.Ticker("XOM")
-
-# # get stock info
-# print(stock.info)
-
-# # get historical market data
-# hist = stock.history(period="max")
-
-# plt.plot(hist)
-
