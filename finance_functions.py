@@ -31,6 +31,11 @@ def geometric_average(returns):
 def differentiate(prices):
     return (prices / np.roll(prices, 1) - 1)[1:]
 
+
+def calculate_log_returns(returns):
+    return [(np.log(i + 1)) for i in returns]
+
+
 def annual_return(prices):
     returns = []
     for i in range(len(prices)):
