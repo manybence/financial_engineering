@@ -36,9 +36,10 @@ def calculate_log_returns(returns):
     return [(np.log(i + 1)) for i in returns]
 
 
-def annual_return(prices):
+def annual_return(ticker):
     returns = []
-    for i in range(len(prices)):
-        if i%52 == 0 and i > 0:
-            returns.append((prices[i] - prices[i-52]) / prices[i-52])
+    last = 0
+    for i in range(1, len(ticker["Date"])):
+        if i % 252 == 0:
+            returns.append((ticker[i] - ticker[i-252]) / ticker[i-252])
     return returns
