@@ -77,6 +77,7 @@ def check_sectors(companies):
     for i in companies:
         tickerdata = yf.Ticker(i)
         sectors.append(tickerdata.info['sector'])
+        print(f"{i} - {tickerdata.info['sector']}")
     
     for i in range(len(sectors)):
         for j in range(i + 1, len(sectors)):
@@ -103,11 +104,6 @@ def main(test=False):
     for i in companies:
         stocks.append(download_data(i, True))
     
-    #Test if the given stock returns have high correlation or from same sector
-    if test:
-        check_correlation(stocks)
-        check_sectors(companies)
-    
     
     #Calculate and plot daily returns
     fig2 = plt.figure(2)
@@ -120,7 +116,10 @@ def main(test=False):
     plt.legend(fontsize = 15)
     plt.title("Daily returns", fontsize = 30)
         
-    
+    #Test if the given stock returns have high correlation or from same sector
+    if test:
+        check_correlation(stocks)
+        check_sectors(companies)
     
     #Calculating annual historical returns
     fig3 = plt.figure(3)
@@ -148,7 +147,8 @@ def main(test=False):
     
     #Calculate Sharpe ratio
     #TODO
-      
+    
+
 
 if __name__ == "__main__":
     main()
