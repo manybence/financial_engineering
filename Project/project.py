@@ -18,6 +18,7 @@ from datetime import datetime
 import numpy as np
 from scipy.stats import gmean
 import pandas as pd
+import statistics as stat
 
 
 TICKERS = ["GOOGL", "KO", "AAPL", "AMZN", "PFE", "AMT", "XOM", "JPM"]
@@ -123,6 +124,37 @@ def historical_data(tickers, stock_data, daily_returns):
     plt.title("Daily returns", fontsize = 30)
     return
 
+def return_analysis(tickers, daily_returns):
+    
+    #Calculate mean annual returns
+    mean_daily_returns = gmean(daily_returns + 1) - 1
+    mean_annual_returns = (1 + mean_daily_returns)**len(daily_returns) - 1
+
+    #TODO: Google 632% ?? looks wrong
+    print("\n=== Mean annual returns ===")
+    for i in range(len(tickers)):
+        print(f"{tickers[i]}: {round(mean_annual_returns[i] * 100, 2)}%")
+
+    
+    #Calculate standard deviation of returns
+    sd_daily = []
+    for i in tickers:
+        sd_daily.append(stat.stdev(daily_returns[i]))
+    sd_annual = [np.sqrt(252) * item for item in sd_daily]
+    
+    print('\n===Annualised standard deviation of returns===')
+    for i in range(len(tickers)):
+        print(f"{tickers[i]}: {round(sd_annual[i]*100, 2)}%")
+    
+    
+    #Calculate correlation between returns
+    corrmat = daily_returns.corr()
+    
+    print('\n===Correlation matrix of daily returns===')
+    print(corrmat)
+    
+    return
+
 def main(test=False):
     
     #Download and plot stock data
@@ -143,21 +175,12 @@ def main(test=False):
     historical_data(TICKERS, stock_data, daily_returns)
     
     #Calculate annualised mean and covariance
-    mean_daily_returns = gmean(daily_returns + 1) - 1
-    mean_annual_returns = (1 + mean_daily_returns)**len(daily_returns) - 1
-    daily_cov_matrix = daily_returns.cov()
-    annual_cov_matrix = daily_cov_matrix * len(daily_returns)
-    print("\n=== Mean daily returns ===")
-    print(pd.Series(mean_daily_returns, daily_returns.columns))
-    print("\n=== Mean annual returns ===")
-    print(pd.Series(mean_annual_returns, daily_returns.columns))
-    print("\n=== Annual Covariance Matrix ===")
-    print(annual_cov_matrix)
+    return_analysis(TICKERS, daily_returns)
     
     
     #Calculate standard deviation of returns
     #TODO
-    #dev = stat.stdev(df["Index"])
+    
     
     #Calculate correlation of returns
     #TODO
