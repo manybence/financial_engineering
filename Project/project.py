@@ -134,7 +134,7 @@ def main(test=False):
     plt.ylabel('USD $', fontsize=20)
     plt.grid()
     plt.legend(fontsize = 15)
-    plt.title("Historical prices", fontsize = 30)
+    plt.title("Historical daily prices", fontsize = 30)
     
     fig2 = plt.figure(2)
     for i in TICKERS:
