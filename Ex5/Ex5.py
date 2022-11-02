@@ -33,9 +33,9 @@ df = pd.read_excel("WILL5000PRFC.xls")
 
 # Exercise 2: Calculating ACF and PACF with differenced data
     
-# plt.plot(df["Date"], df["Price"].diff())
-# plot_acf(df["Price"].diff()[1:], lags = 50)
-# plot_pacf(df["Price"].diff()[1:], lags = 50)
+plt.plot(df["Date"], df["Price"].diff())
+plot_acf(df["Price"].diff()[1:], lags = 50)
+plot_pacf(df["Price"].diff()[1:], lags = 50)
     
 
 

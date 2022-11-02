@@ -19,6 +19,12 @@ import numpy as np
 from scipy.stats import gmean
 import pandas as pd
 
+
+TICKERS = ["GOOGL", "KO", "AAPL", "AMZN", "PFE", "AMT", "XOM", "JPM"]
+START = "2016-01-01"
+END = "2022-01-01"
+INTERVAL = "1d"
+
 def download_data(name, plotting=False, interval='1d'):
     """
     Downloading and plotting stock data
@@ -98,14 +104,28 @@ def annual_return(ticker):
                 returns.append((ticker["Adj Close"][i] - ticker["Adj Close"][i-251]) / ticker["Adj Close"][i-251])    
     return returns
 
+def historical_data(tickers, stock_data, daily_returns):
+    for i in tickers:
+        plt.plot(stock_data["Adj Close"][i], label = i)
+    plt.xlabel('Year', fontsize=20)
+    plt.ylabel('USD $', fontsize=20)
+    plt.grid()
+    plt.legend(fontsize = 15)
+    plt.title("Historical daily prices", fontsize = 30)
+    
+    fig2 = plt.figure(2)
+    for i in tickers:
+        plt.plot(daily_returns[i], label = i)
+    plt.xlabel('Year', fontsize=20)
+    plt.ylabel('USD $', fontsize=20)
+    plt.grid()
+    plt.legend(fontsize = 15)
+    plt.title("Daily returns", fontsize = 30)
+    return
+
 def main(test=False):
     
     #Download and plot stock data
-    TICKERS = ["GOOGL", "KO", "AAPL", "AMZN", "PFE", "AMT", "XOM", "JPM"]
-    START = "2016-01-01"
-    END = "2022-01-01"
-    INTERVAL = "1d"
-    
     stock_data = yf.download(
     tickers = TICKERS,
     start = START,
@@ -115,35 +135,12 @@ def main(test=False):
     stock_data.tail()
     
 
-        
-    # #Test if the given stock returns have high correlation or from same sector
-    # if test:
-    #     check_correlation(stocks)
-    #     check_sectors(companies)
-
-    
-    
     #Calculate daily returns
     daily_returns = stock_data["Adj Close"].pct_change().dropna()
     daily_returns.tail()
     
     #Plotting historical prices, returns
-    for i in TICKERS:
-        plt.plot(stock_data["Adj Close"][i], label = i)
-    plt.xlabel('Year', fontsize=20)
-    plt.ylabel('USD $', fontsize=20)
-    plt.grid()
-    plt.legend(fontsize = 15)
-    plt.title("Historical daily prices", fontsize = 30)
-    
-    fig2 = plt.figure(2)
-    for i in TICKERS:
-        plt.plot(daily_returns[i], label = i)
-    plt.xlabel('Year', fontsize=20)
-    plt.ylabel('USD $', fontsize=20)
-    plt.grid()
-    plt.legend(fontsize = 15)
-    plt.title("Daily returns", fontsize = 30)
+    historical_data(TICKERS, stock_data, daily_returns)
     
     #Calculate annualised mean and covariance
     mean_daily_returns = gmean(daily_returns + 1) - 1
@@ -160,6 +157,7 @@ def main(test=False):
     
     #Calculate standard deviation of returns
     #TODO
+    #dev = stat.stdev(df["Index"])
     
     #Calculate correlation of returns
     #TODO
