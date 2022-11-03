@@ -19,6 +19,7 @@ import numpy as np
 from scipy.stats import gmean
 import pandas as pd
 import statistics as stat
+from scipy import stats
 
 
 TICKERS = sorted(["GOOGL", "KO", "AAPL", "AMZN", "PFE", "AMT", "XOM", "JPM"])
@@ -94,7 +95,16 @@ def return_analysis(tickers, daily_returns):
     for i in range(len(tickers)):
         print(f"{tickers[i]}: {round(sharpe[i], 3)}")
         
+        
+    #Calculate range, skewness, kurtosis of returns
+    ranges = [max(daily_returns[stock]) - min(daily_returns[stock]) for stock in tickers]
+    kurtosis = [stats.kurtosis(daily_returns[stock]) for stock in tickers]
+    skewness = [stats.skew(daily_returns[stock]) for stock in tickers]
     
+    print("\n=== Stock \t Range \t Kurtosis \t Skewness ===")
+    for i in range(len(tickers)):
+        print(f"{tickers[i]}: \t {round(ranges[i]*100, 2)}% \t {round(kurtosis[i], 3)} \t {round(skewness[i], 3)}")
+        
     return
 
 def main(test=False):
@@ -108,6 +118,7 @@ def main(test=False):
     ).dropna()
     stock_data.tail()
     
+    """------------------------------ DATA PRESENTATION ----------------------------------------"""
 
     #Calculate daily returns
     daily_returns = stock_data["Adj Close"].pct_change().dropna()
@@ -117,13 +128,14 @@ def main(test=False):
     
     #Calculate annualised mean and covariance
     return_analysis(TICKERS, daily_returns)
+
+    
+
     
     
-    #Calculate range, skewness, kurtosis of returns
-    #TODO
     
-    #Calculate Sharpe ratio
-    #TODO
+    """------------------------------ DATA ANALYSIS ----------------------------------------"""
+    
     
 
     
