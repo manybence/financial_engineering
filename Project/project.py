@@ -21,62 +21,11 @@ import pandas as pd
 import statistics as stat
 
 
-TICKERS = ["GOOGL", "KO", "AAPL", "AMZN", "PFE", "AMT", "XOM", "JPM"]
+TICKERS = sorted(["GOOGL", "KO", "AAPL", "AMZN", "PFE", "AMT", "XOM", "JPM"])
 START = "2016-01-01"
 END = "2022-01-01"
 INTERVAL = "1d"
 
-def download_data(name, plotting=False, interval='1d'):
-    """
-    Downloading and plotting stock data
-
-    Parameters
-    ----------
-    name : str
-        Code of the selected company.
-    plotting : Bool
-        Plots the historical Adjusted Closing Price if True is selected. The default is False.
-    interval : str
-        Valid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
-
-    Returns
-    -------
-    stock : Ticker object
-        Contains all the important data related to the selected stock
-
-    """
-    start = datetime.strptime("2016-01-01", "%Y-%m-%d")
-    end = datetime.strptime("2022-01-01", "%Y-%m-%d")
-    stock = yf.download(name, start=start, end=end, interval=interval)
-    stock = stock.dropna(axis = 0)  #Dropping NaN values (corporate events)
-    stock = stock.reset_index()     #Makes the "Date" column accessible
-        
-    
-    if plotting:
-        fig1 = plt.figure(1)
-        plt.plot(stock["Date"], stock["Adj Close"], label = name)
-        plt.xlabel('Year', fontsize=20)
-        plt.ylabel('USD $', fontsize=20)
-        plt.grid()
-        plt.legend(fontsize = 15)
-        plt.title("Historical prices", fontsize = 30)
-    
-    return stock
-
-def check_correlation(stocks):
-    print("Test started: Correlation checking")
-    error = False
-    
-    for i in range(len(stocks)):
-        for j in range(i + 1, len(stocks)):
-            r = np.corrcoef(stocks[i]["Returns"][1:], stocks[j]["Returns"][1:])[1][0]
-            if (abs(r) > 0.7):
-                print(f"Too high correlation between {i, j}! r = {round(r, 3)}")
-                error = True 
-    
-    if not error:
-        print("Test passed. No strong correlation found.")
-    return
 
 def check_sectors(companies):
     print("Test started: Sector checking")
@@ -97,13 +46,6 @@ def check_sectors(companies):
     if not error:
         print("Test passed. All companies are from different sectors.")
     return
-
-def annual_return(ticker):
-    returns = []
-    for i in range(1, len(ticker["Date"])):
-            if (i + 1) % 252 == 0:
-                returns.append((ticker["Adj Close"][i] - ticker["Adj Close"][i-251]) / ticker["Adj Close"][i-251])    
-    return returns
 
 def historical_data(tickers, stock_data, daily_returns):
     for i in tickers:
@@ -126,14 +68,13 @@ def historical_data(tickers, stock_data, daily_returns):
 
 def return_analysis(tickers, daily_returns):
     
-    #Calculate mean annual returns
-    mean_daily_returns = gmean(daily_returns + 1) - 1
-    mean_annual_returns = (1 + mean_daily_returns)**len(daily_returns) - 1
+    #Calculate mean annual returns  
+    mean_daily_returns = gmean(daily_returns[1:] + 1) - 1
+    mean_annual_returns = (1 + mean_daily_returns)**252 - 1   
 
-    #TODO: Google 632% ?? looks wrong
-    print("\n=== Mean annual returns ===")
-    for i in range(len(tickers)):
-        print(f"{tickers[i]}: {round(mean_annual_returns[i] * 100, 2)}%")
+    print("\n=== Mean annual returns ===")        
+    for etf, geomean_annual in zip(tickers, mean_annual_returns):
+        print("{}: {}%".format(etf, round(geomean_annual*100, 2)))
 
     
     #Calculate standard deviation of returns
@@ -169,7 +110,6 @@ def main(test=False):
 
     #Calculate daily returns
     daily_returns = stock_data["Adj Close"].pct_change().dropna()
-    daily_returns.tail()
     
     #Plotting historical prices, returns
     historical_data(TICKERS, stock_data, daily_returns)
