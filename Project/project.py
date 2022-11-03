@@ -27,25 +27,6 @@ END = "2022-01-01"
 INTERVAL = "1d"
 
 
-def check_sectors(companies):
-    print("Test started: Sector checking")
-    sectors = []
-    error = False
-    
-    for i in companies:
-        tickerdata = yf.Ticker(i)
-        sectors.append(tickerdata.info['sector'])
-        print(f"{i} - {tickerdata.info['sector']}")
-    
-    for i in range(len(sectors)):
-        for j in range(i + 1, len(sectors)):
-            if sectors[i] == sectors[j]:
-                print(f"Error, same sector! {i, j}, ({sectors[i]})")
-                error = True
-                
-    if not error:
-        print("Test passed. All companies are from different sectors.")
-    return
 
 def historical_data(tickers, stock_data, daily_returns):
     for i in tickers:
@@ -94,6 +75,26 @@ def return_analysis(tickers, daily_returns):
     print('\n===Correlation matrix of daily returns===')
     print(corrmat)
     
+    
+    #Histogram of returns to show distribution
+    figure = plt.figure()
+    plt.hist(daily_returns, bins=30)
+    plt.title('Histogram of Weekly Returns', fontsize=30)
+    plt.xlabel('Return', fontsize=20)
+    plt.ylabel('Frequency', fontsize=20)
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.grid()
+    
+    #Do we need anything else here?
+    
+    #Calculating Sharpe ratio for the stocks
+    sharpe = mean_annual_returns / sd_annual
+    print("\n=== Sharpe ratio of stocks ===")
+    for i in range(len(tickers)):
+        print(f"{tickers[i]}: {round(sharpe[i], 3)}")
+        
+    
     return
 
 def main(test=False):
@@ -118,21 +119,13 @@ def main(test=False):
     return_analysis(TICKERS, daily_returns)
     
     
-    #Calculate standard deviation of returns
-    #TODO
-    
-    
-    #Calculate correlation of returns
-    #TODO
-    
-    #Distribution of returns
-    #TODO
-    
     #Calculate range, skewness, kurtosis of returns
     #TODO
     
     #Calculate Sharpe ratio
     #TODO
+    
+
     
 
 
