@@ -51,7 +51,7 @@ def historical_data(tickers, stock_data, daily_returns):
 def return_analysis(tickers, daily_returns):
     
     #Calculate mean annual returns  
-    mean_daily_returns = gmean(daily_returns[1:] + 1) - 1
+    mean_daily_returns = gmean(daily_returns + 1) - 1
     mean_annual_returns = (1 + mean_daily_returns)**252 - 1   
 
     print("\n=== Mean annual returns ===")        
