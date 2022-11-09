@@ -20,6 +20,14 @@ from scipy.stats import gmean
 import pandas as pd
 import statistics as stat
 from scipy import stats
+import seaborn as sns
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.arima.model import ARIMA
+from pmdarima.arima import auto_arima
+from arch import arch_model
+import warnings
+
+warnings.filterwarnings("ignore")
 
 
 TICKERS = sorted(["GOOGL", "KO", "AAPL", "AMZN", "PFE", "AMT", "XOM", "JPM"])
@@ -54,7 +62,7 @@ def return_analysis(tickers, daily_returns):
     mean_daily_returns = gmean(daily_returns + 1) - 1
     mean_annual_returns = (1 + mean_daily_returns)**252 - 1   
 
-    print("\n=== Mean annual returns ===")        
+    print("\n=== Mean annual returns ===")       
     for etf, geomean_annual in zip(tickers, mean_annual_returns):
         print("{}: {}%".format(etf, round(geomean_annual*100, 2)))
 
@@ -79,7 +87,8 @@ def return_analysis(tickers, daily_returns):
     
     #Histogram of returns to show distribution
     figure = plt.figure()
-    plt.hist(daily_returns, bins=30)
+    #plt.hist(daily_returns, density = True, bins=30)
+    ax = sns.histplot(daily_returns, kde = True, stat = "density", bins = 40)
     plt.title('Histogram of Weekly Returns', fontsize=30)
     plt.xlabel('Return', fontsize=20)
     plt.ylabel('Frequency', fontsize=20)
@@ -95,6 +104,12 @@ def return_analysis(tickers, daily_returns):
     for i in range(len(tickers)):
         print(f"{tickers[i]}: {round(sharpe[i], 3)}")
         
+    print("\nCopy to overleaf")
+    print("=== Stock \t Annual return \t St dev \t Sharpe r ===")
+    for i in range(len(tickers)):
+        print(f"{tickers[i]}: &\t {round(mean_annual_returns[i]*100, 2)} &\t {round(sd_annual[i]*100, 2)} &\t {round(sharpe[i], 3)} \\")
+        
+        
         
     #Calculate range, skewness, kurtosis of returns
     ranges = [max(daily_returns[stock]) - min(daily_returns[stock]) for stock in tickers]
@@ -107,9 +122,46 @@ def return_analysis(tickers, daily_returns):
         
     return
 
+def build_model(daily_returns):
+    
+    stock1 = "GOOGL"
+    stock2 = "PFE"
+    
+    #Plotting auto-correlation and partial auto-correlation of selected stocks
+    plot_acf(daily_returns[stock1], lags = 50, title = f"Auto-correlation of {stock1}")
+    plot_pacf(daily_returns[stock1], lags = 50, title = f"Partial auto-correlation of {stock1}", method='ywm')
+    
+    plot_acf(daily_returns[stock2], lags = 50, title = f"Auto-correlation of {stock2}")
+    plot_pacf(daily_returns[stock2], lags = 50, title = f"Partial auto-correlation of {stock2}", method='ywm')
+    
+    #TODO: Put them in subplots
+    
+    #Estimation of ARIMA part, running through all values
+    # values = []
+    # for i in range(5):
+    #     for j in range(5):  
+    #         model = ARIMA(daily_returns["GOOGL"], order = (i,1,j))
+    #         results = model.fit()
+    #         values.append(round(results.aic, 3))
+            
+    # print(values)
+    # print(f"The optimal model's fit is: {min([abs(i) for i in values])}")
+            
+    model = ARIMA(daily_returns[stock1], order = (0,1,0))  #AR = 0, diff = 1, MA=0
+    results = model.fit()
+    print("AIC: ", round(results.aic, 3), "\nBIC: ", round(results.bic, 3))
+    
+    
+    #TODO: Estimation for GARCH model
+    #model_ARMA_train_residuals = daily_returns[stock1] - model.predict()
+    #model_GARCH = arch_model(model_ARMA_train_residuals, p = 1, q = 1, mean = 'zero', dist = 'normal')
+    #model_GARCH = model_GARCH.fit()
+    
+    return
+
+
 def main(test=False):
     
-    #Download and plot stock data
     stock_data = yf.download(
     tickers = TICKERS,
     start = START,
@@ -124,19 +176,16 @@ def main(test=False):
     daily_returns = stock_data["Adj Close"].pct_change().dropna()
     
     #Plotting historical prices, returns
-    historical_data(TICKERS, stock_data, daily_returns)
+    #historical_data(TICKERS, stock_data, daily_returns)
     
     #Calculate annualised mean and covariance
-    return_analysis(TICKERS, daily_returns)
+    #return_analysis(TICKERS, daily_returns)
 
-    
-
-    
     
     
     """------------------------------ DATA ANALYSIS ----------------------------------------"""
     
-    
+    build_model(daily_returns)
 
     
 
