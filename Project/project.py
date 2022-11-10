@@ -26,6 +26,8 @@ from statsmodels.tsa.arima.model import ARIMA
 from pmdarima.arima import auto_arima
 from arch import arch_model
 import warnings
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.stattools import adfuller
 
 warnings.filterwarnings("ignore")
 
@@ -33,7 +35,6 @@ TICKERS = sorted(["GOOGL", "KO", "AAPL", "AMZN", "PFE", "AMT", "XOM", "JPM"])
 START = "2016-01-01"
 END = "2022-01-01"
 INTERVAL = "1d"
-
 
 
 def historical_data(tickers, stock_data, daily_returns):
@@ -124,15 +125,34 @@ def return_analysis(tickers, daily_returns):
 def autocorrelation(tickers, time_series):
     location = "pictures\\acf_pacf\\"
     
-    #Plotting auto-correlation and partial auto-correlation of selected stocks then saving them to file
-    for stock in tickers:
-        fig1 = plot_acf(time_series[stock], lags = 30, title = f"Auto-correlation of {stock}")
-        fig1.savefig(location + "acf_" + stock)   
-        plt.close(fig1) 
+    # #Plotting auto-correlation and partial auto-correlation of selected stocks then saving them to file
+    # for stock in tickers:
+    #     fig1 = plot_acf(time_series[stock], lags = 30, title = f"Auto-correlation of {stock}")
+    #     fig1.savefig(location + "acf_" + stock)   
+    #     plt.close(fig1) 
         
-        fig2 = plot_pacf(time_series[stock], lags = 30, title = f"Partial auto-correlation of {stock}", method='ywm')
-        fig2.savefig(location + "pacf_" + stock)   
-        plt.close(fig2)     
+    #     fig2 = plot_pacf(time_series[stock], lags = 30, title = f"Partial auto-correlation of {stock}", method='ywm')
+    #     fig2.savefig(location + "pacf_" + stock)   
+    #     plt.close(fig2)    
+        
+        
+       
+    selected_stocks = ["GOOGL", "PFE"]
+    
+    for stock in selected_stocks:
+        
+        #Seasonal decomposition
+        result=seasonal_decompose(time_series[stock], period=12)
+        result.plot()
+        
+        #Stationarity test
+        p = adfuller(time_series[stock])[1]
+        print(f"\n{stock}: p-value is {p}")
+        if p > 0.05:
+            print("Therefore the time series is not stationary")
+        else:
+            print("Therefore the time series is stationary")
+        
     return
 
 def build_model(daily_returns):
@@ -142,19 +162,8 @@ def build_model(daily_returns):
     
 
 
-    
-    #Estimation of ARIMA part, running through all values
-    # values = []
-    # for i in range(5):
-    #     for j in range(5):  
-    #         model = ARIMA(daily_returns["GOOGL"], order = (i,1,j))
-    #         results = model.fit()
-    #         values.append(round(results.aic, 3))
             
-    # print(values)
-    # print(f"The optimal model's fit is: {min([abs(i) for i in values])}")
-            
-    model = ARIMA(daily_returns[stock1], order = (0,1,0))  #AR = 0, diff = 1, MA=0
+    model = ARIMA(daily_returns[stock1], order = (1,1,0))  #AR = 1, diff = 1, MA=0
     results = model.fit()
     print("AIC: ", round(results.aic, 3), "\nBIC: ", round(results.bic, 3))
     
@@ -194,7 +203,7 @@ def main(test=False):
     
     autocorrelation(TICKERS, daily_returns)
     
-    #build_model(daily_returns)
+    build_model(daily_returns)
 
     
 
