@@ -205,6 +205,8 @@ def main(test=False):
     
     build_model(daily_returns)
 
+
+    print("merging test")
     
 
 
