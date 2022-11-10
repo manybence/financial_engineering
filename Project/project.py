@@ -29,7 +29,6 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-
 TICKERS = sorted(["GOOGL", "KO", "AAPL", "AMZN", "PFE", "AMT", "XOM", "JPM"])
 START = "2016-01-01"
 END = "2022-01-01"
@@ -122,19 +121,27 @@ def return_analysis(tickers, daily_returns):
         
     return
 
+def autocorrelation(tickers, time_series):
+    location = "pictures\\acf_pacf\\"
+    
+    #Plotting auto-correlation and partial auto-correlation of selected stocks then saving them to file
+    for stock in tickers:
+        fig1 = plot_acf(time_series[stock], lags = 30, title = f"Auto-correlation of {stock}")
+        fig1.savefig(location + "acf_" + stock)   
+        plt.close(fig1) 
+        
+        fig2 = plot_pacf(time_series[stock], lags = 30, title = f"Partial auto-correlation of {stock}", method='ywm')
+        fig2.savefig(location + "pacf_" + stock)   
+        plt.close(fig2)     
+    return
+
 def build_model(daily_returns):
     
     stock1 = "GOOGL"
     stock2 = "PFE"
     
-    #Plotting auto-correlation and partial auto-correlation of selected stocks
-    plot_acf(daily_returns[stock1], lags = 50, title = f"Auto-correlation of {stock1}")
-    plot_pacf(daily_returns[stock1], lags = 50, title = f"Partial auto-correlation of {stock1}", method='ywm')
-    
-    plot_acf(daily_returns[stock2], lags = 50, title = f"Auto-correlation of {stock2}")
-    plot_pacf(daily_returns[stock2], lags = 50, title = f"Partial auto-correlation of {stock2}", method='ywm')
-    
-    #TODO: Put them in subplots
+
+
     
     #Estimation of ARIMA part, running through all values
     # values = []
@@ -185,7 +192,9 @@ def main(test=False):
     
     """------------------------------ DATA ANALYSIS ----------------------------------------"""
     
-    build_model(daily_returns)
+    autocorrelation(TICKERS, daily_returns)
+    
+    #build_model(daily_returns)
 
     
 
